@@ -1,17 +1,25 @@
 # AWS Solutions Architect Prep
-Courses taken : https://www.youtube.com/watch?v=Ia-UEYYR44s
+Courses taken : 
+- Andrew Brown from Exam Pro - https://www.youtube.com/watch?v=Ia-UEYYR44s
+
+- Stephan Maarek's AWS Solution Architect on Udemy 
+
+[Course Slides](https://media.datacumulus.com/aws-saa/AWS%20Certified%20Solutions%20Architect%20Slides%20v4.7.1.pdf)
 
 ## Exam Details 
 ```
-* 65 Questions
+* 65 Questions - MCQ (1 out of 4) and Multiple Response (any out of 4)
 * 130 Mins (2h 10 Mins)
-* 72% Passing Score
+* ~72% Passing Score (Max points : 1000, Min. Points : 720) equivalent to a C- grade. 
 * 3 year Valididity
 * 150 USD
+* Scoring : Unanswered questions are scored as incorrect; there is no penalty for guessing. 
 ```
 ----
 ## Exam Guide 
 Content Outline of the Exam Syllabu with weightage and services hinted at. 
+[Link to PDF](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf)
+
 
 ### Domain 1 : Design RESILIENT Architectures (34%)
 #### 1.1 Choose reliable/resilient storage
@@ -66,6 +74,13 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 - Choose design features that enable operational excellence
 
 
+## Recommended Whitepapers :
+* AWS Best Practises
+* AWS Well-Architected Framework
+
+---
+
+![Important AWS Services covered](https://user-images.githubusercontent.com/12581835/169692436-2098dbc5-fdd9-49b7-85bd-90435c3f67a0.png)
 
 
 
