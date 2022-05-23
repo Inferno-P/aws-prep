@@ -83,6 +83,27 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 ![Important AWS Services covered](https://user-images.githubusercontent.com/12581835/169692436-2098dbc5-fdd9-49b7-85bd-90435c3f67a0.png)
 
 
+---
 
+## IAM Summary 
+- Users : Mapped to a physical user. Has a password.
+- Groups : Logical entities that contain User. One user can be in more than one group.
+- Policies : Set of rules (like a JSON Document) describing the access privileges of a Group/User/Role.
+  - A statement in an IAM Policy consists of `Sid, Effect, Principal, Action, Resource, and Condition`. 
+  - Version is part of the IAM Policy itself, not the statement. :warning:
+ 
+![Screenshot 2022-05-23 at 21 17 15](https://user-images.githubusercontent.com/12581835/169890660-a85b3a58-b3fe-4bf7-94fb-ca60556dd85d.png)
 
-
+- Roles : An _IAM Entity_ that defines a set of permissions for making requests to AWS Services, and will be used by an AWS Service. 
+  - Provide access privileges to AWS services to perform actions on behalf of Users.
+   
+- Security : MFA + Password policy 
+- Access Keys : Need these keys to access AWS via CLI or SDK.
+  - Access Key is like your username 
+  - Secret access key is like your password
+- Auditing :
+  - IAM Credentials Report (account level info)
+  - IAM Access Advisor (user level info)
+- __Other Important Stuff :__
+  - _Principle of Least Privileges._
+  
