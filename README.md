@@ -1,4 +1,4 @@
-# AWS Solutions Architect Prep
+# AWS Solutions Architect Prep :rocket:
 Courses taken : 
 - Andrew Brown from Exam Pro - https://www.youtube.com/watch?v=Ia-UEYYR44s
 
@@ -78,14 +78,14 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 * AWS Best Practises
 * AWS Well-Architected Framework
 
----
+--
 
 ![Important AWS Services covered](https://user-images.githubusercontent.com/12581835/169692436-2098dbc5-fdd9-49b7-85bd-90435c3f67a0.png)
 
 
----
+----
 
-## IAM Summary 
+## IAM Summary :closed_lock_with_key:
 - Users : Mapped to a physical user. Has a password.
 - Groups : Logical entities that contain User. One user can be in more than one group.
 - Policies : Set of rules (like a JSON Document) describing the access privileges of a Group/User/Role.
@@ -104,6 +104,9 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 - Auditing :
   - IAM Credentials Report (account level info)
   - IAM Access Advisor (user level info)
-- __Other Important Stuff :__
+- __Other Important Stuff :__ :sparkle:
   - _Principle of Least Privileges._
-  
+ 
+ ---
+ 
+ 
