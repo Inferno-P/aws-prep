@@ -110,3 +110,15 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
  ---
  
  
+## Amazon EC2 Summary 💻
+- Solving the 'compute' problem.
+- EC2 = Elastic Compute Cloud = Infrastructure as a Service
+- Not just 1 service, it's a collection of services :
+  - Renting virtual machines (EC2)
+  - Storing data ono virtual drives (EBS)
+  - Distributing load across machines (ELB)
+  - Scaling the services (ASG)
+- 
+
+
+ 
