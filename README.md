@@ -127,7 +127,22 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
     - Hardware (EC2 instance store)
   - Network : Speed, Public IP Address
   - Firewall Rules : ```Security Groups```
-  - Boootstrap Script (configure at first launch) : EC2 User data
+  - Bootstrap Script (configure at first launch) : ``EC2 User data``
+    - Bootstrapping means launching commands when a machine starts
+    - The boostrap script is only run once at the instance first start. 
+    - Commands like : *Installing Updates, Softwares, Downloading files from internet, etc.*
+    - ``root user`` used too execute bootstraping script.
+```
+#!/bin/bash
+# Use this script for user data
+# install httpd 
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+
+```
 
 
  
