@@ -118,7 +118,16 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
   - Storing data ono virtual drives (EBS)
   - Distributing load across machines (ELB)
   - Scaling the services (ASG)
-- 
+- EC2 Sizing and Config Options 
+  - OS - Linux, Windows, Mac OS
+  - CPU
+  - RAM
+  - Storage Space:
+    - Network Attached (EBS and EFS)
+    - Hardware (EC2 instance store)
+  - Network : Speed, Public IP Address
+  - Firewall Rules : ```Security Groups```
+  - Boootstrap Script (configure at first launch) : EC2 User data
 
 
  
