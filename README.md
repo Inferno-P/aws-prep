@@ -144,5 +144,16 @@ echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
 
 ```
 
+## Amazon Security Groups 👮
+- Kind of like 'firewalls'. Control how traffic is allowed into or out of ouor EC2 instances.
+- SGs don't run on the EC2 instances, they live outside. If they block some data, the underlying EC2 instance won't see it.
+- Locked to a particular Region/VPC combination. 
+- __Rules__ : 
+  - Regulate access to ports.
+  - Authorised IP Ranges (IPv4 and IPv6)
+  - Controlling inbound traffic.
+  - Controlling ooutbound traffic. 
+- By default, all inbound traffic is blocked 🚫 and all outbound traffic is allowed✅. 
+- 
 
  
