@@ -1,17 +1,25 @@
-# AWS Solutions Architect Prep
-Courses taken : https://www.youtube.com/watch?v=Ia-UEYYR44s
+# AWS Solutions Architect Prep :rocket:
+Courses taken : 
+- Andrew Brown from Exam Pro - https://www.youtube.com/watch?v=Ia-UEYYR44s
+
+- Stephan Maarek's AWS Solution Architect on Udemy 
+
+[Course Slides](https://media.datacumulus.com/aws-saa/AWS%20Certified%20Solutions%20Architect%20Slides%20v4.7.1.pdf)
 
 ## Exam Details 
 ```
-* 65 Questions
+* 65 Questions - MCQ (1 out of 4) and Multiple Response (any out of 4)
 * 130 Mins (2h 10 Mins)
-* 72% Passing Score
+* ~72% Passing Score (Max points : 1000, Min. Points : 720) equivalent to a C- grade. 
 * 3 year Valididity
 * 150 USD
+* Scoring : Unanswered questions are scored as incorrect; there is no penalty for guessing. 
 ```
 ----
 ## Exam Guide 
 Content Outline of the Exam Syllabu with weightage and services hinted at. 
+[Link to PDF](https://d1.awsstatic.com/training-and-certification/docs-sa-assoc/AWS-Certified-Solutions-Architect-Associate_Exam-Guide.pdf)
+
 
 ### Domain 1 : Design RESILIENT Architectures (34%)
 #### 1.1 Choose reliable/resilient storage
@@ -66,8 +74,105 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 - Choose design features that enable operational excellence
 
 
+## Recommended Whitepapers :
+* AWS Best Practises
+* AWS Well-Architected Framework
+
+--
+
+![Important AWS Services covered](https://user-images.githubusercontent.com/12581835/169692436-2098dbc5-fdd9-49b7-85bd-90435c3f67a0.png)
 
 
+----
 
+## IAM Summary :closed_lock_with_key:
+- Users : Mapped to a physical user. Has a password.
+- Groups : Logical entities that contain User. One user can be in more than one group.
+- Policies : Set of rules (like a JSON Document) describing the access privileges of a Group/User/Role.
+  - A statement in an IAM Policy consists of `Sid, Effect, Principal, Action, Resource, and Condition`. 
+  - Version is part of the IAM Policy itself, not the statement. :warning:
+ 
+![Screenshot 2022-05-23 at 21 17 15](https://user-images.githubusercontent.com/12581835/169890660-a85b3a58-b3fe-4bf7-94fb-ca60556dd85d.png)
 
+- Roles : An _IAM Entity_ that defines a set of permissions for making requests to AWS Services, and will be used by an AWS Service. 
+  - Provide access privileges to AWS services to perform actions on behalf of Users.
+   
+- Security : MFA + Password policy 
+- Access Keys : Need these keys to access AWS via CLI or SDK.
+  - Access Key is like your username 
+  - Secret access key is like your password
+- Auditing :
+  - IAM Credentials Report (account level info)
+  - IAM Access Advisor (user level info)
+- __Other Important Stuff :__ :sparkle:
+  - _Principle of Least Privileges._
+ 
+ ---
+ 
+ 
+## Amazon EC2 Summary 💻
+- Solving the 'compute' problem.
+- EC2 = Elastic Compute Cloud = Infrastructure as a Service
+- Not just 1 service, it's a collection of services :
+  - Renting virtual machines (EC2)
+  - Storing data ono virtual drives (EBS)
+  - Distributing load across machines (ELB)
+  - Scaling the services (ASG)
+- EC2 Sizing and Config Options 
+  - OS - Linux, Windows, Mac OS
+  - CPU
+  - RAM
+  - Storage Space:
+    - Network Attached (EBS and EFS)
+    - Hardware (EC2 instance store)
+  - Network : Speed, Public IP Address
+  - Firewall Rules : ```Security Groups```
+  - Bootstrap Script (configure at first launch) : ``EC2 User data``
+    - Bootstrapping means launching commands when a machine starts
+    - The boostrap script is only run once at the instance first start. 
+    - Commands like : *Installing Updates, Softwares, Downloading files from internet, etc.*
+    - ``root user`` used too execute bootstraping script.
+```
+#!/bin/bash
+# Use this script for user data
+# install httpd 
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
 
+```
+# Security Groups 👮
+- Kinda like 'Firewalls' on EC@ instances.
+- Important for network security in AWS
+- Security groups only contain __ALLOW__ rules.
+- __Rules__ : Control how traffic is allowed into or out of our EC2 instances.
+  - Access to ports.
+  - Authorised IP ranges - IPv4 and IPv6
+  - Control of inbound network (outside to instance).
+  - Control of outbound network (instance to outside).
+  - Default Rules : All inboound traffic is blocked. All outbound traffic is allowed.
+- __Important Points__
+  - Can be attached to multiple instance. An instance can have multiple security groups attached.
+  - Locked to a region/VPC comobination. If we change regions, we will have to create different SG.
+  - SGs do not run on EC2. They lie outside and if they block some data, then the underlying EC2 won't see it.
+- __Example :__
+ There is a EC2 machine called `X1` with 2 security groups attached to it called `SG1` and `SG2`. 
+ Denoted by `X1[SG1, SG2]`.
+ There are other EC2 machines called `X2` and `X3` with security groups SG1 and SG2 attached, respectively.
+ Denoted by `X2[SG1]`, `X3[SG2]`.
+ 
+ The EC2 machines with same SG can intereact with each other. i.e. `X2` and `X3` can signal `X1` since they have same SGs.
+ 
+`X2[SG1] -> X1[SG1, SG2]` and `X3[SG2] -> X1[SG1, SG2]`
+
+- Ports :
+   - 22 = SSH into Linux
+   - 21 = FTP
+   - 22 = SFTP 
+   - 80 = HTTP
+   - 443 = HTTPS
+   - 3389 = RDP into Windows instance
+ 
+ 
