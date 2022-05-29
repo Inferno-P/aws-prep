@@ -260,7 +260,9 @@ __CheatSheet__
 - Two sorts of IP formats : 
 	- IPv4- `1.160.212.240`, most common form. Format : [0-255].[0-255].[0-255].[0-255] - 3.7 Bn addresses.
 	- IPv6 - `1900:4231:3:204:g8he:ir59:40ge`, usually meant for IoT.
-- Types : 
+- Types :
+
+
 | **Public IP**                        | **Private IP**                                                             |
 |--------------------------------------|----------------------------------------------------------------------------|
 | Machines can be ID'd on the internet | Can be ID'd on a private n/w only.                                         |
