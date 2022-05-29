@@ -196,6 +196,11 @@ echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
 	- Combine w/ Regional Reserved 
 	 - Charged @ On-Demand rates whether use or not.
 
+__Which room is right for me?__
+<img width="1037" alt="Screenshot 2022-05-29 at 16 11 32" src="https://user-images.githubusercontent.com/12581835/170873487-d57402ca-0aa7-4565-915d-587c3ffa4923.png">
+__CheatSheet__
+<img width="1595" alt="Screenshot 2022-05-29 at 16 12 46" src="https://user-images.githubusercontent.com/12581835/170873555-11465219-3dae-4a3a-816b-d96317977d12.png">
+
 
 
 # Security Groups 👮
