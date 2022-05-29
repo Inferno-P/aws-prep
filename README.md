@@ -251,6 +251,37 @@ __CheatSheet__
    - 443 = HTTPS
    - 3389 = RDP into Windows instance
  
+ ---
+
+
+
+ # Networking :globe_with_meridians:
+###### Crash Course in IP Addresses
+- Two sorts of IP formats : 
+	- IPv4- `1.160.212.240`, most common form. Format : [0-255].[0-255].[0-255].[0-255] - 3.7 Bn addresses.
+	- IPv6 - `1900:4231:3:204:g8he:ir59:40ge`, usually meant for IoT.
+- Types : 
+| **Public IP**                        | **Private IP**                                                             |
+|--------------------------------------|----------------------------------------------------------------------------|
+| Machines can be ID'd on the internet | Can be ID'd on a private n/w only.                                         |
+| Must be unique across the whole web  | IP must be uniques across a proovate network (2 pvt n/w can have some IPs) |
+| Can be geo-located                   | Machines connect to Internet via an internet gateway.                      |
+
+- Elastic IPs
+	-  The IP of an EC2 instance changes whenever we restart it. Elastic IP provides a fixed IP for your instance. 
+	- Can be attached to only 1 instance at a time. _If that EC2 instance fails, we can rapidly remap it to another functional instance._
+	- Only 5 Elastic IP in your account.
+	> Best Practices
+	> __Try to avoid using Elastic IP__
+	> - Instead, use a random public IP and register a DNS name to it.
+	> - Better, use a Load Balancer and don't use a public IP.
+
+
+
+
+
+
+
  
 
 
