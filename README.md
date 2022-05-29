@@ -1,4 +1,5 @@
 
+
 # AWS Solutions Architect Prep :rocket:
 Courses taken : 
 - Andrew Brown from Exam Pro - https://www.youtube.com/watch?v=Ia-UEYYR44s
@@ -177,9 +178,22 @@ Questions : "Which type of instance is the best given the nature of workloads?"
 
 4. Spot Instance 
 	- Discount upto 90% vs On-Demand
-	- Most cost efficient.
+	- Most cost efficient. Can lose the instance anytime.
 	- `Workloads with flexible start and end times that can withstand interruptions.`
 	- Eg : Batch Jobs, Img Processing. Not recommended for Databases.
+	- __Interesting :__
+		- User defines max spot price that they are willing to pay, then get the instance while `current price < user-defined max price`.
+		- If  `current price > user-defined max price`, then _stop_ or _terminate_ your instance with a 2 min grace period.
+	- __Spot Fleets__: _Ultimate way to save money._
+		- Fleet = set of Spot Instances _ optional On-Demand Instance.
+		- Fleet tries to meet the target capacity with price constraints:
+			- Define possible launch pools : instance type, OS, AZ
+			- Can have multiple launch pools, so the Fleet can choose.
+			- Fleet stops launching new instances when reaching capacity or max cost.
+		- Fleet Strategies:
+			- lowestPrice - pick from pool with the lowest price. (cost optimize, short workload)
+			- diversified - distributed across all pools (great for availability, long workloads)
+			- capacityOptimized: pool with optimal capacity
 
 5. Dedicated Host and Instance (DH)
 	- HOST
