@@ -150,6 +150,8 @@ echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
     - ``root user`` used too execute bootstraping script.
   
 ### EC2 Pricing :receipt:
+Questions : "Which type of instance is the best given the nature of workloads?"
+
 1. On-Demand Instance (OD)
 	-	__Pay for what you use.__ _Linux/Windows - pay per second, after 1st min. Other OSs - billing per hour._
 	-	Highest Cost, but no upfront payment.
