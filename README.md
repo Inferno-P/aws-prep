@@ -1,3 +1,5 @@
+
+
 # AWS Solutions Architect Prep :rocket:
 Courses taken : 
 - Andrew Brown from Exam Pro - https://www.youtube.com/watch?v=Ia-UEYYR44s
@@ -107,8 +109,23 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 - __Other Important Stuff :__ :sparkle:
   - _Principle of Least Privileges._
  
+ 
  ---
  
+ Sample Codes used :
+ ```
+#!/bin/bash
+# Use this script for user data
+# install httpd 
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+
+```
+ 
+ ---
  
 ## Amazon EC2 Summary 💻
 - Solving the 'compute' problem.
@@ -132,17 +149,76 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
     - The boostrap script is only run once at the instance first start. 
     - Commands like : *Installing Updates, Softwares, Downloading files from internet, etc.*
     - ``root user`` used too execute bootstraping script.
-```
-#!/bin/bash
-# Use this script for user data
-# install httpd 
-yum update -y
-yum install -y httpd
-systemctl start httpd
-systemctl enable httpd
-echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+  
+### EC2 Pricing :receipt:
+Questions : "Which type of instance is the best given the nature of workloads?"
 
-```
+1. On-Demand Instance (OD)
+	-	__Pay for what you use.__ _Linux/Windows - pay per second, after 1st min. Other OSs - billing per hour._
+	-	Highest Cost, but no upfront payment.
+	-	`Short-term, irregular and un-interrupted workloads`
+	-	No long term commitment.
+
+2. Reserved Instance (RI)
+	- 72% cheaper vs On-Demand. Reserve specific instance attributes __(Instance Types, Region, Tenancy, OS)__
+	- __Reservation Features__:
+		- Period - 1 year or 3 years ('Standard' Reserved)
+		- Payment Options - No Upfront(+), Partial Upfront(++), All Upfront(+++)
+		- Scope - Regional or Zonal (reserved capacity in an AZ)
+	- `Recommended for steady-state usage applications (think database)`
+	- Can buy and sell in the reserved instance market place when not in use anymore.
+	- Post the Reserved instance usage, pricing returns to On-Demand rates.
+	- 'Convertible' Reserved : Flexible on EC2 instance type, family OS, scope and tenancy. Less Discount - 66%.
+	
+3. Saving Plan Instance (SP)
+	- Discount on Long-term usage. (upto 72% - same as RIs) 
+	- Commitment required : Consistent usage $10/Hr for 1 or 3 years
+	- Usage beyond commitment is priced @ On-Demand Rates.
+	- Locked to instance family & AWS Region. (Eg. M5 in us-east-1). Flexible on Instance Size, OS and Tenancy (Hst Dedicated, Default)
+
+4. Spot Instance 
+	- Discount upto 90% vs On-Demand
+	- Most cost efficient. Can lose the instance anytime.
+	- `Workloads with flexible start and end times that can withstand interruptions.`
+	- Eg : Batch Jobs, Img Processing. Not recommended for Databases.
+	- __Interesting :__
+		- User defines max spot price that they are willing to pay, then get the instance while `current price < user-defined max price`.
+		- If  `current price > user-defined max price`, then _stop_ or _terminate_ your instance with a 2 min grace period.
+	- __Spot Fleets__: _Ultimate way to save money._
+		- Fleet = set of Spot Instances _ optional On-Demand Instance.
+		- Fleet tries to meet the target capacity with price constraints:
+			- Define possible launch pools : instance type, OS, AZ
+			- Can have multiple launch pools, so the Fleet can choose.
+			- Fleet stops launching new instances when reaching capacity or max cost.
+		- Fleet Strategies:
+			- lowestPrice - pick from pool with the lowest price. (cost optimize, short workload)
+			- diversified - distributed across all pools (great for availability, long workloads)
+			- capacityOptimized: pool with optimal capacity
+
+5. Dedicated Host and Instance (DH)
+	- HOST
+		- A physical servers with EC2 instance capacity fully dedicated to your use.
+		- Useful to address __compliance requirements__ and use your existing server-bound software licences (per-socket, per-core, per VM S/W Licenses) 
+		- Purchasing Options : __On-Demand__ pay per second for active dedicated host. __Reserved__ 1 or 3 years (All upfront only)
+		- Most Expensive.
+		- Useful for software that have complicated licensing model. (BYOL - Bring Your Own License).  _Eg: Oracle Netsuite, Adobe Photoshop, etc.
+	- INSTANCE
+		- Instances run on h/w that's dedicated to you.
+		- May share h/w with other instances in same account.
+		- No control over instance placement. 
+6.  Capacity Reservation Instances
+	- Reserved On-Demand instances capacity in a specific AZ for any duration.
+	- No time commitment. No billing discounts.
+	- Combine w/ Regional Reserved 
+	 - Charged @ On-Demand rates whether use or not.
+
+__Which room is right for me?__
+<img width="1037" alt="Screenshot 2022-05-29 at 16 11 32" src="https://user-images.githubusercontent.com/12581835/170873487-d57402ca-0aa7-4565-915d-587c3ffa4923.png">
+__CheatSheet__
+<img width="1595" alt="Screenshot 2022-05-29 at 16 12 46" src="https://user-images.githubusercontent.com/12581835/170873555-11465219-3dae-4a3a-816b-d96317977d12.png">
+
+
+
 # Security Groups 👮
 - Kinda like 'Firewalls' on EC@ instances.
 - Important for network security in AWS
@@ -175,4 +251,44 @@ echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
    - 443 = HTTPS
    - 3389 = RDP into Windows instance
  
+ ---
+
+
+
+ # Networking :globe_with_meridians:
+###### Crash Course in IP Addresses
+- Two sorts of IP formats : 
+	- IPv4- `1.160.212.240`, most common form. Format : [0-255].[0-255].[0-255].[0-255] - 3.7 Bn addresses.
+	- IPv6 - `1900:4231:3:204:g8he:ir59:40ge`, usually meant for IoT.
+- Types :
+
+
+| **Public IP**                        | **Private IP**                                                             |
+|--------------------------------------|----------------------------------------------------------------------------|
+| Machines can be ID'd on the internet | Can be ID'd on a private n/w only.                                         |
+| Must be unique across the whole web  | IP must be uniques across a proovate network (2 pvt n/w can have some IPs) |
+| Can be geo-located                   | Machines connect to Internet via an internet gateway.                      |
+
+- Elastic IPs
+	-  The IP of an EC2 instance changes whenever we restart it. Elastic IP provides a fixed IP for your instance. 
+	- Can be attached to only 1 instance at a time. _If that EC2 instance fails, we can rapidly remap it to another functional instance._
+	- Only 5 Elastic IP in your account.
+	> Best Practices
+	> 
+	> __Try to avoid using Elastic IP__
+	> - Instead, use a random public IP and register a DNS name to it.
+	> - Better, use a Load Balancer and don't use a public IP.
+
+
+
+
+
+
+
  
+
+
+
+
+
+
