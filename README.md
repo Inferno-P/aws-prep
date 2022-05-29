@@ -1,3 +1,4 @@
+
 # AWS Solutions Architect Prep :rocket:
 Courses taken : 
 - Andrew Brown from Exam Pro - https://www.youtube.com/watch?v=Ia-UEYYR44s
@@ -107,8 +108,23 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
 - __Other Important Stuff :__ :sparkle:
   - _Principle of Least Privileges._
  
+ 
  ---
  
+ Sample Codes used :
+ ```
+#!/bin/bash
+# Use this script for user data
+# install httpd 
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+
+```
+ 
+ ---
  
 ## Amazon EC2 Summary 💻
 - Solving the 'compute' problem.
@@ -132,17 +148,56 @@ Content Outline of the Exam Syllabu with weightage and services hinted at.
     - The boostrap script is only run once at the instance first start. 
     - Commands like : *Installing Updates, Softwares, Downloading files from internet, etc.*
     - ``root user`` used too execute bootstraping script.
-```
-#!/bin/bash
-# Use this script for user data
-# install httpd 
-yum update -y
-yum install -y httpd
-systemctl start httpd
-systemctl enable httpd
-echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
+  
+### EC2 Pricing :receipt:
+1. On-Demand Instance (OD)
+	-	__Pay for what you use.__ _Linux/Windows - pay per second, after 1st min. Other OSs - billing per hour._
+	-	Highest Cost, but no upfront payment.
+	-	`Short-term, irregular and un-interrupted workloads`
+	-	No long term commitment.
 
-```
+2. Reserved Instance (RI)
+	- 72% cheaper vs On-Demand. Reserve specific instance attributes __(Instance Types, Region, Tenancy, OS)__
+	- __Reservation Features__:
+		- Period - 1 year or 3 years ('Standard' Reserved)
+		- Payment Options - No Upfront(+), Partial Upfront(++), All Upfront(+++)
+		- Scope - Regional or Zonal (reserved capacity in an AZ)
+	- `Recommended for steady-state usage applications (think database)`
+	- Can buy and sell in the reserved instance market place when not in use anymore.
+	- Post the Reserved instance usage, pricing returns to On-Demand rates.
+	- 'Convertible' Reserved : Flexible on EC2 instance type, family OS, scope and tenancy. Less Discount - 66%.
+	
+3. Saving Plan Instance (SP)
+	- Discount on Long-term usage. (upto 72% - same as RIs) 
+	- Commitment required : Consistent usage $10/Hr for 1 or 3 years
+	- Usage beyond commitment is priced @ On-Demand Rates.
+	- Locked to instance family & AWS Region. (Eg. M5 in us-east-1). Flexible on Instance Size, OS and Tenancy (Hst Dedicated, Default)
+
+4. Spot Instance 
+	- Discount upto 90% vs On-Demand
+	- Most cost efficient.
+	- `Workloads with flexible start and end times that can withstand interruptions.`
+	- Eg : Batch Jobs, Img Processing. Not recommended for Databases.
+
+5. Dedicated Host and Instance (DH)
+	- HOST
+		- A physical servers with EC2 instance capacity fully dedicated to your use.
+		- Useful to address __compliance requirements__ and use your existing server-bound software licences (per-socket, per-core, per VM S/W Licenses) 
+		- Purchasing Options : __On-Demand__ pay per second for active dedicated host. __Reserved__ 1 or 3 years (All upfront only)
+		- Most Expensive.
+		- Useful for software that have complicated licensing model. (BYOL - Bring Your Own License).  _Eg: Oracle Netsuite, Adobe Photoshop, etc.
+	- INSTANCE
+		- Instances run on h/w that's dedicated to you.
+		- May share h/w with other instances in same account.
+		- No control over instance placement. 
+6.  Capacity Reservation Instances
+	- Reserved On-Demand instances capacity in a specific AZ for any duration.
+	- No time commitment. No billing discounts.
+	- Combine w/ Regional Reserved 
+	 - Charged @ On-Demand rates whether use or not.
+
+
+
 # Security Groups 👮
 - Kinda like 'Firewalls' on EC@ instances.
 - Important for network security in AWS
@@ -176,3 +231,9 @@ echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
    - 3389 = RDP into Windows instance
  
  
+
+
+
+
+
+
