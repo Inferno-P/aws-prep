@@ -143,17 +143,36 @@ systemctl enable httpd
 echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
 
 ```
+# Security Groups 👮
+- Kinda like 'Firewalls' on EC@ instances.
+- Important for network security in AWS
+- Security groups only contain __ALLOW__ rules.
+- __Rules__ : Control how traffic is allowed into or out of our EC2 instances.
+  - Access to ports.
+  - Authorised IP ranges - IPv4 and IPv6
+  - Control of inbound network (outside to instance).
+  - Control of outbound network (instance to outside).
+  - Default Rules : All inboound traffic is blocked. All outbound traffic is allowed.
+- __Important Points__
+  - Can be attached to multiple instance. An instance can have multiple security groups attached.
+  - Locked to a region/VPC comobination. If we change regions, we will have to create different SG.
+  - SGs do not run on EC2. They lie outside and if they block some data, then the underlying EC2 won't see it.
+- __Example :__
+ There is a EC2 machine called `X1` with 2 security groups attached to it called `SG1` and `SG2`. 
+ Denoted by `X1[SG1, SG2]`.
+ There are other EC2 machines called `X2` and `X3` with security groups SG1 and SG2 attached, respectively.
+ Denoted by `X2[SG1]`, `X3[SG2]`.
+ 
+ The EC2 machines with same SG can intereact with each other. i.e. `X2` and `X3` can signal `X1` since they have same SGs.
+ 
+`X2[SG1] -> X1[SG1, SG2]` and `X3[SG2] -> X1[SG1, SG2]`
 
-## Amazon Security Groups 👮
-- Kind of like 'firewalls'. Control how traffic is allowed into or out of ouor EC2 instances.
-- SGs don't run on the EC2 instances, they live outside. If they block some data, the underlying EC2 instance won't see it.
-- Locked to a particular Region/VPC combination. 
-- __Rules__ : 
-  - Regulate access to ports.
-  - Authorised IP Ranges (IPv4 and IPv6)
-  - Controlling inbound traffic.
-  - Controlling ooutbound traffic. 
-- By default, all inbound traffic is blocked 🚫 and all outbound traffic is allowed✅. 
-- 
-
+- Ports :
+   - 22 = SSH into Linux
+   - 21 = FTP
+   - 22 = SFTP 
+   - 80 = HTTP
+   - 443 = HTTPS
+   - 3389 = RDP into Windows instance
+ 
  
