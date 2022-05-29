@@ -274,6 +274,7 @@ __CheatSheet__
 	- Can be attached to only 1 instance at a time. _If that EC2 instance fails, we can rapidly remap it to another functional instance._
 	- Only 5 Elastic IP in your account.
 	> Best Practices
+	> 
 	> __Try to avoid using Elastic IP__
 	> - Instead, use a random public IP and register a DNS name to it.
 	> - Better, use a Load Balancer and don't use a public IP.
