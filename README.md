@@ -217,6 +217,27 @@ __Which room is right for me?__
 __CheatSheet__
 <img width="1595" alt="Screenshot 2022-05-29 at 16 12 46" src="https://user-images.githubusercontent.com/12581835/170873555-11465219-3dae-4a3a-816b-d96317977d12.png">
 
+#### Placement Groups
+Use to control _where_ and _how_ my EC2 instances get deployed(or _placed_).
+	-   **Cluster** : Clusters instances into a low-latency network. `Same Rack. Same AZ`
+		- Great Network. But, if the rack fails, then all the instances go down.
+		- Use Case : Big data jobs that need to complete fast. App that needs extremely low latency and high network throughput. `high performance`
+-	**Spread** : Instances spread across different hardware (in a server rack).
+	-	Reduced risk of simultaneous failure. If H/W in AZ1 fails, then less likely h/w will fail in AZ2.
+	-	Limited to only 7 instances per AZ per placement group. 
+	-	Use Case : Apps that need high availability. Critical apps where each instance must be isolated from failures of each other. `critical`
+-	**Partition** : Instances spread  across different partitions (i.e. server racks) within an AZ.
+	-	Reduced risk of 'rack failure'. If rack in AZ1 fails, then less likely h/w will fail in AZ2.Upto 100s of EC2 instances. 
+	- A partition failure will affect EC2 instances on that rack only.
+	- Use Case : HDFS, HBase, Cassandra, etc. `distributed`
+
+#### Advanced Topics
+1. __EC2 Nitro__ - Underlying platform for the next-gen EC2 instances. New virtualisation tech. Better performance (64k IOPS on EBS) and security.
+2. __vCPU__ - EC2 instances come with a combination of RAM and vCPU. 1 thread on a CPU = 1 vCPU. _If a CPU has 2 cores with 2 threads per core, then it means 4 vCPU._
+If you are being charged by a licensing s/w on the basis of #of vCPUs, then you can reduce the number of threads or cores  that run on a EC2 instance. This configuration happens only at the instance launch.
+3. __Capacity Reservations__ - Ensure you have capacity when you need it. Reservations have a manual or planned ending date. No need oof 1 or 3 year commitment. You are billed as soon as the capacity is reserved. AZ, Instance Type, OS must be specified.
+
+
 
 
 # Security Groups 👮
@@ -260,13 +281,11 @@ __CheatSheet__
 - Two sorts of IP formats : 
 	- IPv4- `1.160.212.240`, most common form. Format : [0-255].[0-255].[0-255].[0-255] - 3.7 Bn addresses.
 	- IPv6 - `1900:4231:3:204:g8he:ir59:40ge`, usually meant for IoT.
-- Types :
-
-
+- Types : 
 | **Public IP**                        | **Private IP**                                                             |
 |--------------------------------------|----------------------------------------------------------------------------|
 | Machines can be ID'd on the internet | Can be ID'd on a private n/w only.                                         |
-| Must be unique across the whole web  | IP must be uniques across a proovate network (2 pvt n/w can have some IPs) |
+| Must be unique across the whole web  | IP must be uniques across a private network (2 pvt n/w can have some IPs) |
 | Can be geo-located                   | Machines connect to Internet via an internet gateway.                      |
 
 - Elastic IPs
@@ -274,11 +293,19 @@ __CheatSheet__
 	- Can be attached to only 1 instance at a time. _If that EC2 instance fails, we can rapidly remap it to another functional instance._
 	- Only 5 Elastic IP in your account.
 	> Best Practices
-	> 
 	> __Try to avoid using Elastic IP__
 	> - Instead, use a random public IP and register a DNS name to it.
 	> - Better, use a Load Balancer and don't use a public IP.
 
+### Elastic Network Interface
+- Logical component in a VPC that represents a _virtual network card_ (A NIC (Network Interface Card) provides the hardware interface between a computer and a network).
+- ENI have 4 attributes :
+	- Primary private IPv4, one or more secondary IPv4.
+	- One Elastic IP(Public) per private IPv4.
+	- One or more security groups.
+	- A MAC Address
+- ENI can be created independently and attach and detach them to instances on the fly. 
+- __ENIs are AZ-bound__ so an ENI in AZ1 can't be attached to a EC2 in AZ2.
 
 
 
