@@ -153,6 +153,16 @@ echo "<h1> Hello World from $(hostname -f)</h1>" > /var/www/html/index.html
 ### EC2 Pricing :receipt:
 Questions : "Which type of instance is the best given the nature of workloads?"
 
+Summary:
+| **Instance Type**  	| **Remarks**                                                                                                                                                                                    	|
+|--------------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
+| On-Demand          	| Expensive.                                                                                                                                                                                     	|
+| Savings Plan       	| 1 or 3 year commitment of consistent usage- 10$/Hr.                                                                                                                                            	|
+| Reserved           	| 1 or 3 years reserved on different instance features like Type, Region, OS etc. Payment Options- All upfront=Max Discount                                                                      	|
+| Spot               	| Cheap. Suitable for short-term workloads resilient to failure.                                                                                                                                 	|
+| Dedicated Host     	| A physical servers with EC2 instance capacity fully dedicated to your use. Most Expensive.  Pricing - On-Demand pay per sec for active dedicated host.Reserved 1 or 3 years (All upfront only) 	|
+| Dedicated Instance 	| Instances run on h/w that's dedicated to you. May share h/w with other instances in same AWS account.                                                                                          	|
+
 1. On-Demand Instance (OD)
 	-	__Pay for what you use.__ _Linux/Windows - pay per second, after 1st min. Other OSs - billing per hour._
 	-	Highest Cost, but no upfront payment.
