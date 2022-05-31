@@ -308,11 +308,28 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 - __ENIs are AZ-bound__ so an ENI in AZ1 can't be attached to a EC2 in AZ2.
 
 
+---
+# Storage :file_cabinet:
+## Elastic Block Storage (EBS)
 
+- It's a _network drive_ (kinda like "a network pendrive") you attach to your instances.
+- Allows your instance to persist data, even after termination.
+- Can be mounted/attached to only one EC2 instance at a time. 
+	- Can be detached and attached to other EC2 instance.
+- AZ-Bound.
+- EBS volumes can exist in the unattached to any EC2 instance.
+	- Connected via network so there will be some latency.
+	- Storage must be provisioned. Define the capacity at the time of initialisation.
+	- You will be billed for the provisioned capacity.
+- __Delete on termination__ attribute:
+	- By default, the __root EBS volume is deleted__ when an EC2 gets terminated.
+	- But, the attached EBS volume doesn't get deleted.  
 
-
-
- 
+- __EBS Snapshots - __
+	- Make a backup of EBS volume at a point in time. Recommended to detach before snapshotting.
+	- Can copy across AZ or Region.
+	- __Snapshot Archive__ Snapshots can be archived to "archived tier". 75% cheaper. Restoring takes 24 - 72 hours.
+	- __Recycle Bin__ to retain the deleted EBS volumes for 1 day till 1 year to recover any accidental deletions.
 
 
 
