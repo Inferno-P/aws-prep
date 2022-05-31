@@ -325,7 +325,7 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 	- By default, the __root EBS volume is deleted__ when an EC2 gets terminated.
 	- But, the attached EBS volume doesn't get deleted.  
 
-- __EBS Snapshots - __
+- __EBS Snapshots__
 	- Make a backup of EBS volume at a point in time. Recommended to detach before snapshotting.
 	- Can copy across AZ or Region.
 	- __Snapshot Archive__ Snapshots can be archived to "archived tier". 75% cheaper. Restoring takes 24 - 72 hours.
