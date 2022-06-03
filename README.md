@@ -231,6 +231,27 @@ Use to control _where_ and _how_ my EC2 instances get deployed(or _placed_).
 	- A partition failure will affect EC2 instances on that rack only.
 	- Use Case : HDFS, HBase, Cassandra, etc. `distributed`
 
+### AMI
+- Amazon Machine Image : Customization of an EC2 instance.
+	- Add your own OS, Software, config, etc.
+	- Faster boot times since all the software is pre-packaged.
+- Built for a specific region. Can be copied though.
+- EC2 instances can be launched from : 
+	- Public AMI
+	- Your own AMI
+	- An AWS Mktplace AMI : Other people create and sell these AMIs.
+
+### EC2 Instance Store
+- 'Store' as in storage.
+- EC2 instance is a virtual machine, but it is attached to real hardware in a server. Sometimes, these servers have a hard disk attached to them. 
+- Use EC2 Instance Store if you need a high performance hardware disk.
+- Better I/O performance
+- EC2 Instance Store lose their storage, when the instance is stopped. _ephemeral storage_
+- Good for buffer/cache/scratch data/temp content.
+- Risk of data loss, if hardware fails.
+- Backup and Replication of data on Instance Store is _our responsibility_. 
+
+
 #### Advanced Topics
 1. __EC2 Nitro__ - Underlying platform for the next-gen EC2 instances. New virtualisation tech. Better performance (64k IOPS on EBS) and security.
 2. __vCPU__ - EC2 instances come with a combination of RAM and vCPU. 1 thread on a CPU = 1 vCPU. _If a CPU has 2 cores with 2 threads per core, then it means 4 vCPU._
@@ -241,7 +262,7 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 
 
 # Security Groups 👮
-- Kinda like 'Firewalls' on EC@ instances.
+- Kinda like 'Firewalls' on EC2 instances.
 - Important for network security in AWS
 - Security groups only contain __ALLOW__ rules.
 - __Rules__ : Control how traffic is allowed into or out of our EC2 instances.
@@ -325,14 +346,51 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 	- By default, the __root EBS volume is deleted__ when an EC2 gets terminated.
 	- But, the attached EBS volume doesn't get deleted.  
 
-- __EBS Snapshots__
+- __EBS Snapshots - __
 	- Make a backup of EBS volume at a point in time. Recommended to detach before snapshotting.
 	- Can copy across AZ or Region.
 	- __Snapshot Archive__ Snapshots can be archived to "archived tier". 75% cheaper. Restoring takes 24 - 72 hours.
 	- __Recycle Bin__ to retain the deleted EBS volumes for 1 day till 1 year to recover any accidental deletions.
 
+- __EBS Volume Types__
+	- EBS classification basis - Size | Throughput | IOPS
+	- __gp2/gp3 (SSD)__ : General purpose SSD volume. Balances price and performance. `Boot Volume`.
+	- __io1/io2 (SSD)__ : Highest-performance SSD volume for mission-critical low-latency or high-throughput workloads. `Boot Volume` . `Provisioned IOPS` `Multi-Attach`
+	- __st1 (HDD)__ : Low cost HDD. Frequently accessed, throughput-intensive workloads.
+	- __sc1 (HDD)__ : Lowest cost HDD. Less frequently accessed workloads.
+	
+- __EBS Encryption__
+	- What is encrypted? _Data at rest, Data inflight between instance and volume, snapshots, all volumes created from the snapshot._
+	- Encryption is recommended due to minimal impact on latency.
+	- Uses KMS keys (AES-256).
+	- Copying an unencrypted snapshot can be encrypted.
+	- __How to encrypt an un-encrypted EBS volume?__ Create a snapshot -> Encrypt the snapshot -> Create a volume using the snapshot. -> The volume will be encrypted.
 
 
+## Elastic File System (EFS) :file_folder:
+- Managed NFS(Network File System) that can be mounted on multiple EC2.
+- Works with multi-AZ. An EFS can be connected to EC2 instances in multiple AZs.
+- Highly available, scalable, expensive, pay-per-use. 
+- __Use cases:__ Content Mgmt, Web serving, data sharing, wordpress. 
+- __Security :__ Uses NFSv4.1 protocol. Uses Security Group to control access. Encryption at rest using KMS. 
+- __Compatible with only Linux based AMIs.__
+- Uses POSIX file system (same as Linux). 
+- __File system scales automatically, so no need to provision and plan capacity!__
 
+__Scale__:
+- 1000s of concurrent NFS clients, 10GB+/s throughput
+- Grows to petabyte-scale file network file system, automatically.
+__Performance Mode__: (configured at creation time)
+- General purpose(default): latency-sensitive use cases (web server, CMS, etc.)
+- Max I/O - higher latency, throughput, highly parallel (big data, media processing..)
+__Throughput Mode__: 
+- Bursting (1TB = 50MBps + burts oof uto 100MBps)
+- Provision: set a throughput regardless of storage size.
+__Storage Tiers__:
+- Standard : Frequently accessed files.
+- Infrequest Access (EFS-IA) : Cheap storage, retrieval. Enable EFS-IA with a Lifecycle Policy. 
+__Availability__:
+- Regional : muti-AZ, great for production.
+- One Zone : great for dev, backup enabled by default. Compatible with IA. 90% cheaper.
 
-
+EFS Exam Questions: `When shouold youo use EFS? How to configure it to maintain compliance?`
