@@ -380,21 +380,20 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 __Scale__:
 - 1000s of concurrent NFS clients, 10GB+/s throughput
 - Grows to petabyte-scale file network file system, automatically.
-
 __Performance Mode__: (configured at creation time)
 - General purpose(default): latency-sensitive use cases (web server, CMS, etc.)
 - Max I/O - higher latency, throughput, highly parallel (big data, media processing..)
-
 __Throughput Mode__: 
-- Bursting (1TB = 50MBps + burts oof uto 100MBps)
+- Bursting (1TB = 50MBps + burts oof uto 100MBps) _Scales with the size of file system._
 - Provision: set a throughput regardless of storage size.
-
 __Storage Tiers__:
 - Standard : Frequently accessed files.
-- Infrequest Access (EFS-IA) : Cheap storage, retrieval. Enable EFS-IA with a Lifecycle Policy.
-
+- Infrequest Access (EFS-IA) : Cheap storage, retrieval. Enable EFS-IA with a Lifecycle Policy. 
+	- Lifecycle Policy is a set oof rules to define the scope of storage of data based on it's usage pattern.
 __Availability__:
 - Regional : muti-AZ, great for production.
 - One Zone : great for dev, backup enabled by default. Compatible with IA. 90% cheaper.
 
-EFS Exam Questions: `When shouold youo use EFS? How to configure it to maintain compliance?`
+EFS Exam Questions: `When should you use EFS? How to configure it to maintain compliance?`
+![Screenshot 2022-06-03 at 22 03 16](https://user-images.githubusercontent.com/12581835/171942318-a3dd324d-8246-40d0-a027-63567dfc12ea.png)
+
