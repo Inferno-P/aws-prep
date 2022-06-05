@@ -395,5 +395,90 @@ __Availability__:
 - One Zone : great for dev, backup enabled by default. Compatible with IA. 90% cheaper.
 
 EFS Exam Questions: `When should you use EFS? How to configure it to maintain compliance?`
-![Screenshot 2022-06-03 at 22 03 16](https://user-images.githubusercontent.com/12581835/171942318-a3dd324d-8246-40d0-a027-63567dfc12ea.png)
 
+---
+
+:godmode:
+---
+> __Scalability and Availability__
+> Scalability means "Application can handle greater load by adapting." 
+> There are two kinds of scalability:
+> - __Vertical Scalability__- _Increasing the size of the instance eg - add more RAM, etc._
+> 	- Instance sizes can vary from `t2.nano` (0.5GB ram/1vCPU) to `12tb1.metal` – 12.3 TB of RAM, 448 vCPUs.
+> - __Horizontal Scalability (= elasticity)__ - _Increasing the number of instances / systems. Implies distributed systems._
+> 	- AutoScaling Group
+> 	- Load Balancer
+> 
+> __Availability__ means "Application can survive a data center loss". Achieved by running instances for the same application across multiple
+> AZs. Availability and Horizontal Scalability go hand in hand.
+> - Auto Scaling Group multi AZ 
+> - Load Balancer multi AZ
+---
+
+## Elastic Load Balancer :balance_scale:
+
+__What is Load Balancer?__
+Load Balancers are servers that forward and distribute traffic to multiple servers (e.g. EC2 instances) downstream. 
+In other words, as the web traffic increases, the ELB will redirect the traffic to the different instances to distribute the traffic(load) evenly across the instances. 
+
+<img width="506" alt="Hnet com-image" src="https://user-images.githubusercontent.com/12581835/172000085-84e24238-dbd7-4321-90aa-16c9b0892c9b.png">
+
+__Why use ELB?__
+- Spread load across multiple downstream instances. 
+- Expose single point of access (DNS) to your application.
+- Seamlessly handle failures of downstream to your instances.
+- Regular health checks on instances.
+- Provide SSL termination (HTTPS) for your websites.
+- Enforce stickiness with cookies.
+- High availability across zones.
+- Separate public traffic from private traffic.
+
+__Features__
+- ELB is a _managed service._ i.e. 
+	- Managed Services mean AWS handles availability, upgrade, maintenance, etc.
+- Costs less to setup your own Load Balancer, but too much hassle to manage it.
+- AWS ELB comes integrated with many AWS offerings / services :
+	- EC2, EC2 Auto Scaling Groups, Amazon ECS
+	- AWS Certificate Manager, Cloud Watch.
+	- Route 53, AWS WAF, AWS Global Accelerator.
+
+__Health Checks :sweat:__
+- Crucial for ELBs.
+- Notify Load Balancers if the instances are available to reply to requests.
+- Health Check is done on a port and a route (/health is common)
+- If the response is not 200 (OK), then the instance is unhealthy and the load balancer won't send traffic to that instance.
+<img width="354" alt="Health Check" src="https://user-images.githubusercontent.com/12581835/172000869-844b8cd8-f294-4307-8208-0dddd12f9de5.png">
+
+### Load Balancer Security Groups
+If the EC2 instances and the Load Balancers communicate toogether, how do they secure the traffic?
+<img width="398" alt="Load Balance Security Rules" src="https://user-images.githubusercontent.com/12581835/172003939-0799adf3-4368-4410-9bc5-667908942e09.png">
+
+Since the ELB _fronts_ the EC2 instances, it faces all the traffic from outside. So, it's security group rules will look like below:
+```
+SG-ELB-1 : Security Group Rules for ELB 
+Allow HTTP from 0.0.0.0, Port 80.
+Allow HTTPS from 0.0.0.0 , Port 443.
+```
+Whereas, the instance talks to only the ELB as it receives the outside traffic from it. So, it security group rules will look like below : 
+```
+SG-Ec2-A : Security Group Rules for an EC2 instance connected to ELB. 
+Allow HTTP from SG-ELB-1. Port 80
+```
+
+
+### Types of Load Balancers
+AWS has 4 kinds of Load Balancers:
+
+| **Load Balancer**         	| **Year** 	| **Protocol**                                     	|
+|---------------------------	|----------	|---------------------------------------------------	|
+| Classic Load Balancer     	| 2009     	|  HTTP, HTTPS, TCP, SSL                            	|
+| Application Load Balancer 	| 2016     	| HTTP, HTTPS, WebSocket                            	|
+| Network Load Balancer     	| 2017     	| TCP, TLS(Secure TCP), UDP                         	|
+| Gateway Load Balancer     	| 2020     	| Operates at layer 3 (Network Layer) - IP Protocol 	|
+
+Recommended to use the newer generation Load Balancers. Some LBs can also be setup as internal or private ELBs.
+
+#### 1. Classic Load Balancer CLB
+- Supports TCP (Layer 4), HTTP & HTTPS (Layer 7)
+- Health Checks - TCP or HTTP based.
+- Fixed hostname XXX.region.elb.amazonaws.com
