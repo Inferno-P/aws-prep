@@ -231,6 +231,27 @@ Use to control _where_ and _how_ my EC2 instances get deployed(or _placed_).
 	- A partition failure will affect EC2 instances on that rack only.
 	- Use Case : HDFS, HBase, Cassandra, etc. `distributed`
 
+### AMI
+- Amazon Machine Image : Customization of an EC2 instance.
+	- Add your own OS, Software, config, etc.
+	- Faster boot times since all the software is pre-packaged.
+- Built for a specific region. Can be copied though.
+- EC2 instances can be launched from : 
+	- Public AMI
+	- Your own AMI
+	- An AWS Mktplace AMI : Other people create and sell these AMIs.
+
+### EC2 Instance Store
+- 'Store' as in storage.
+- EC2 instance is a virtual machine, but it is attached to real hardware in a server. Sometimes, these servers have a hard disk attached to them. 
+- Use EC2 Instance Store if you need a high performance hardware disk.
+- Better I/O performance
+- EC2 Instance Store lose their storage, when the instance is stopped. _ephemeral storage_
+- Good for buffer/cache/scratch data/temp content.
+- Risk of data loss, if hardware fails.
+- Backup and Replication of data on Instance Store is _our responsibility_. 
+
+
 #### Advanced Topics
 1. __EC2 Nitro__ - Underlying platform for the next-gen EC2 instances. New virtualisation tech. Better performance (64k IOPS on EBS) and security.
 2. __vCPU__ - EC2 instances come with a combination of RAM and vCPU. 1 thread on a CPU = 1 vCPU. _If a CPU has 2 cores with 2 threads per core, then it means 4 vCPU._
@@ -241,7 +262,7 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 
 
 # Security Groups 👮
-- Kinda like 'Firewalls' on EC@ instances.
+- Kinda like 'Firewalls' on EC2 instances.
 - Important for network security in AWS
 - Security groups only contain __ALLOW__ rules.
 - __Rules__ : Control how traffic is allowed into or out of our EC2 instances.
@@ -308,14 +329,156 @@ If you are being charged by a licensing s/w on the basis of #of vCPUs, then you 
 - __ENIs are AZ-bound__ so an ENI in AZ1 can't be attached to a EC2 in AZ2.
 
 
+---
+# Storage :file_cabinet:
+## Elastic Block Storage (EBS)
+
+- It's a _network drive_ (kinda like "a network pendrive") you attach to your instances.
+- Allows your instance to persist data, even after termination.
+- Can be mounted/attached to only one EC2 instance at a time. 
+	- Can be detached and attached to other EC2 instance.
+- AZ-Bound.
+- EBS volumes can exist in the unattached to any EC2 instance.
+	- Connected via network so there will be some latency.
+	- Storage must be provisioned. Define the capacity at the time of initialisation.
+	- You will be billed for the provisioned capacity.
+- __Delete on termination__ attribute:
+	- By default, the __root EBS volume is deleted__ when an EC2 gets terminated.
+	- But, the attached EBS volume doesn't get deleted.  
+
+- __EBS Snapshots - __
+	- Make a backup of EBS volume at a point in time. Recommended to detach before snapshotting.
+	- Can copy across AZ or Region.
+	- __Snapshot Archive__ Snapshots can be archived to "archived tier". 75% cheaper. Restoring takes 24 - 72 hours.
+	- __Recycle Bin__ to retain the deleted EBS volumes for 1 day till 1 year to recover any accidental deletions.
+
+- __EBS Volume Types__
+	- EBS classification basis - Size | Throughput | IOPS
+	- __gp2/gp3 (SSD)__ : General purpose SSD volume. Balances price and performance. `Boot Volume`.
+	- __io1/io2 (SSD)__ : Highest-performance SSD volume for mission-critical low-latency or high-throughput workloads. `Boot Volume` . `Provisioned IOPS` `Multi-Attach`
+	- __st1 (HDD)__ : Low cost HDD. Frequently accessed, throughput-intensive workloads.
+	- __sc1 (HDD)__ : Lowest cost HDD. Less frequently accessed workloads.
+	
+- __EBS Encryption__
+	- What is encrypted? _Data at rest, Data inflight between instance and volume, snapshots, all volumes created from the snapshot._
+	- Encryption is recommended due to minimal impact on latency.
+	- Uses KMS keys (AES-256).
+	- Copying an unencrypted snapshot can be encrypted.
+	- __How to encrypt an un-encrypted EBS volume?__ Create a snapshot -> Encrypt the snapshot -> Create a volume using the snapshot. -> The volume will be encrypted.
 
 
+## Elastic File System (EFS) :file_folder:
+- Managed NFS(Network File System) that can be mounted on multiple EC2.
+- Works with multi-AZ. An EFS can be connected to EC2 instances in multiple AZs.
+- Highly available, scalable, expensive, pay-per-use. 
+- __Use cases:__ Content Mgmt, Web serving, data sharing, wordpress. 
+- __Security :__ Uses NFSv4.1 protocol. Uses Security Group to control access. Encryption at rest using KMS. 
+- __Compatible with only Linux based AMIs.__
+- Uses POSIX file system (same as Linux). 
+- __File system scales automatically, so no need to provision and plan capacity!__
+
+__Scale__:
+- 1000s of concurrent NFS clients, 10GB+/s throughput
+- Grows to petabyte-scale file network file system, automatically.
+__Performance Mode__: (configured at creation time)
+- General purpose(default): latency-sensitive use cases (web server, CMS, etc.)
+- Max I/O - higher latency, throughput, highly parallel (big data, media processing..)
+__Throughput Mode__: 
+- Bursting (1TB = 50MBps + burts oof uto 100MBps) _Scales with the size of file system._
+- Provision: set a throughput regardless of storage size.
+__Storage Tiers__:
+- Standard : Frequently accessed files.
+- Infrequest Access (EFS-IA) : Cheap storage, retrieval. Enable EFS-IA with a Lifecycle Policy. 
+	- Lifecycle Policy is a set oof rules to define the scope of storage of data based on it's usage pattern.
+__Availability__:
+- Regional : muti-AZ, great for production.
+- One Zone : great for dev, backup enabled by default. Compatible with IA. 90% cheaper.
+
+EFS Exam Questions: `When should you use EFS? How to configure it to maintain compliance?`
+
+---
+
+:godmode:
+---
+> __Scalability and Availability__
+> Scalability means "Application can handle greater load by adapting." 
+> There are two kinds of scalability:
+> - __Vertical Scalability__- _Increasing the size of the instance eg - add more RAM, etc._
+> 	- Instance sizes can vary from `t2.nano` (0.5GB ram/1vCPU) to `12tb1.metal` – 12.3 TB of RAM, 448 vCPUs.
+> - __Horizontal Scalability (= elasticity)__ - _Increasing the number of instances / systems. Implies distributed systems._
+> 	- AutoScaling Group
+> 	- Load Balancer
+> 
+> __Availability__ means "Application can survive a data center loss". Achieved by running instances for the same application across multiple
+> AZs. Availability and Horizontal Scalability go hand in hand.
+> - Auto Scaling Group multi AZ 
+> - Load Balancer multi AZ
+---
+
+## Elastic Load Balancer :balance_scale:
+
+__What is Load Balancer?__
+Load Balancers are servers that forward and distribute traffic to multiple servers (e.g. EC2 instances) downstream. 
+In other words, as the web traffic increases, the ELB will redirect the traffic to the different instances to distribute the traffic(load) evenly across the instances. 
+
+<img width="506" alt="Hnet com-image" src="https://user-images.githubusercontent.com/12581835/172000085-84e24238-dbd7-4321-90aa-16c9b0892c9b.png">
+
+__Why use ELB?__
+- Spread load across multiple downstream instances. 
+- Expose single point of access (DNS) to your application.
+- Seamlessly handle failures of downstream to your instances.
+- Regular health checks on instances.
+- Provide SSL termination (HTTPS) for your websites.
+- Enforce stickiness with cookies.
+- High availability across zones.
+- Separate public traffic from private traffic.
+
+__Features__
+- ELB is a _managed service._ i.e. 
+	- Managed Services mean AWS handles availability, upgrade, maintenance, etc.
+- Costs less to setup your own Load Balancer, but too much hassle to manage it.
+- AWS ELB comes integrated with many AWS offerings / services :
+	- EC2, EC2 Auto Scaling Groups, Amazon ECS
+	- AWS Certificate Manager, Cloud Watch.
+	- Route 53, AWS WAF, AWS Global Accelerator.
+
+__Health Checks :sweat:__
+- Crucial for ELBs.
+- Notify Load Balancers if the instances are available to reply to requests.
+- Health Check is done on a port and a route (/health is common)
+- If the response is not 200 (OK), then the instance is unhealthy and the load balancer won't send traffic to that instance.
+<img width="354" alt="Health Check" src="https://user-images.githubusercontent.com/12581835/172000869-844b8cd8-f294-4307-8208-0dddd12f9de5.png">
+
+### Load Balancer Security Groups
+If the EC2 instances and the Load Balancers communicate toogether, how do they secure the traffic?
+<img width="398" alt="Load Balance Security Rules" src="https://user-images.githubusercontent.com/12581835/172003939-0799adf3-4368-4410-9bc5-667908942e09.png">
+
+Since the ELB _fronts_ the EC2 instances, it faces all the traffic from outside. So, it's security group rules will look like below:
+```
+SG-ELB-1 : Security Group Rules for ELB 
+Allow HTTP from 0.0.0.0, Port 80.
+Allow HTTPS from 0.0.0.0 , Port 443.
+```
+Whereas, the instance talks to only the ELB as it receives the outside traffic from it. So, it security group rules will look like below : 
+```
+SG-Ec2-A : Security Group Rules for an EC2 instance connected to ELB. 
+Allow HTTP from SG-ELB-1. Port 80
+```
 
 
- 
+### Types of Load Balancers
+AWS has 4 kinds of Load Balancers:
 
+| **Load Balancer**         	| **Year** 	| **Protocol**                                     	|
+|---------------------------	|----------	|---------------------------------------------------	|
+| Classic Load Balancer     	| 2009     	|  HTTP, HTTPS, TCP, SSL                            	|
+| Application Load Balancer 	| 2016     	| HTTP, HTTPS, WebSocket                            	|
+| Network Load Balancer     	| 2017     	| TCP, TLS(Secure TCP), UDP                         	|
+| Gateway Load Balancer     	| 2020     	| Operates at layer 3 (Network Layer) - IP Protocol 	|
 
+Recommended to use the newer generation Load Balancers. Some LBs can also be setup as internal or private ELBs.
 
-
-
-
+#### 1. Classic Load Balancer CLB
+- Supports TCP (Layer 4), HTTP & HTTPS (Layer 7)
+- Health Checks - TCP or HTTP based.
+- Fixed hostname XXX.region.elb.amazonaws.com
