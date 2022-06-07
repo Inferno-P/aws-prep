@@ -482,3 +482,7 @@ Recommended to use the newer generation Load Balancers. Some LBs can also be set
 - Supports TCP (Layer 4), HTTP & HTTPS (Layer 7)
 - Health Checks - TCP or HTTP based.
 - Fixed hostname XXX.region.elb.amazonaws.com
+
+
+![Hnet com-image (4)](https://user-images.githubusercontent.com/12581835/172464928-c87b25f3-ecfc-42e8-8a58-5310a670d564.png)
+
