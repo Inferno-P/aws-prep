@@ -486,3 +486,7 @@ Recommended to use the newer generation Load Balancers. Some LBs can also be set
 
 ![Hnet com-image (4)](https://user-images.githubusercontent.com/12581835/172464928-c87b25f3-ecfc-42e8-8a58-5310a670d564.png)
 
+![Screenshot 2022-06-08 at 23 59 35](https://user-images.githubusercontent.com/12581835/172724768-7beeb395-5f80-4652-972a-ea09117c4295.png)
+
+<img width="819" alt="Screenshot 2022-06-09 at 00 05 11" src="https://user-images.githubusercontent.com/12581835/172725444-e1284216-7d14-4415-98aa-066ebec28f09.png">
+
