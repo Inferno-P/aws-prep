@@ -642,3 +642,244 @@ How they get terminated?
 __Life Cycle Hooks__
 
 ![Screenshot 2022-06-08 at 23 59 35](https://user-images.githubusercontent.com/12581835/172724768-7beeb395-5f80-4652-972a-ea09117c4295.png)
+
+
+
+
+# RDS
+### Overview
+- Relational Database Service. 
+- Managed DB Service for DB that use SQL as a query language.
+- Allows you to create databases in the cloud that are managed by AWS
+	- Postgres
+	- MySQL
+	- MariaDB
+	- Oracle
+	- MS-SQL
+	- Aurora
+- __Confusion :__ RDS is just a service that provides us with installed DBMS software like oracle and postgres, rather than deploying it on our own .
+
+- RDS vs "Deploying DB on EC2 yourself" i.e. _Out-of-the-box vs DIY_
+	- Automated provisioning, OS patching
+	- Continuous backups, restore to a point in time!
+	- Monitoring dashboards
+	- Read replicas to increase read performance.
+	- Multi-AZ setups for DR (disaster REcovery)
+	- Scaling capability (horizontal and vertical)
+	- Storage backed by EBS (gp2 or io1)
+	- *Can not SSH* into the instance that runs RDS. 
+
+### RDS Backups
+1. Automatically enabled
+2. Automated Backups:
+	- Daily full backup of the DB.
+	- Txn Logs backups by RDS every 5 min.
+	- Ability to restore to any point-in-time.
+	- 7 days retention can be increased to 35 days.
+3. DB Snapshots
+	- Not the same as "Backup" as they are manually triggerd by the user. i.e. Not Automated.
+	- Retention as long as we want.
+
+### RDS - Storage Auto Scaling 
+- Helps you increase storage on your RDS DB instance dynamically.
+- When you are running out of free database storage, it scales automatically! _Manual scaling not required._
+- __Max Storage Threshold__
+- Modify storage if :
+	- Free storage is less than 10% of allocated storage
+	- Low-storage lasts at least 5 minutes.
+	- 6 hours have passed since last modification.
+- Useful for apps with unpredictable workloads. 
+
+### Read Replicas :page_facing_up: 
+They help in easing the load on the main DB in case of huge number of READ requests.
+- Create another DB instances that servers can read data from. This replica can be reserved for READ requests.
+- Max 5 read replicas allowed.
+- Data between the read replicas and the main DB is __eventually consistent/ASYNC__ i.e. a read from Main DB and the read replicas may not be same. Data from read replicas may lag behind. 
+- Read Replica can be promoted to become their own DB.
+- Eg : Production DB is your main DB. But your reporting service can use a a read replica of the main db as reporting only requires READ operations. 
+- __Network Costs__  : 
+	- Data moving within the same Region is free. _Make sure to keep Read Replicas and Main DB in the same AZ to avoid high costs._
+	- Data moving to different Regions is not free and has a cost. 
+ 
+
+### RDS Multi-AZ (Disaster Recovery)
+They help in maintaining an instantaneously consistent/SYNC backup DB to manage master DB failover in case of a disaster.
+- SYNC replication
+- One DNS name - automatic app failover to standby
+- Increase __availability__
+- Failover in case of loss of AZ, instance, storage, etc.
+- No manual intervention in apps.
+- Not used for scaling.
+
+### RDS Security - Encryption
+- __At rest Encryption__
+	- Can encrypt master and read replicas using AWS KMS.
+	- Encryption has to be defined at launch time. After that, you can't change the settings.
+	- Transparent Data Encryption (TDE) available for Oracle and SQL server.
+- __In-flight encryption__ (_data being send from clients to RDS_)
+	- SSL Certificates to encrypt data into RDS in flight.
+	- Provide SSL Options with trust certificate when connecting to DB.
+- __Encryption Operations :__
+	- Snapshots of un-encrypted RDS databases are un-encrypted.
+	- Snapshots of encrypted RDS databases are encrypted.
+	- __How to convert un-encrypted RDS to an encrypted one?__
+		- Take it's snapshot. Enable Encryption on the snapshot. Restore the DB from the encrypted snapshot. 
+
+### RDS Security - Network and IAM
+- Network Security
+	- RDS DBs are usually deployed within a private subnet, not in a public one.
+	- RDS security works by leveraging SecGroups (similar to EC2) - it controls which IP/SecGroups can communicate with RDS.
+- Access Mgmt
+	- IAM Policies help control who can manage AWS RDS (through the RDS API)
+	- Traditional UserName and Password can be used to login into the database.
+	- IAM-based authentication can be used to login into RDS MySQL and PostgreSQL
+- IAM Authentication
+	- IAM  datbse authentication works with MySQL and PostgresSQL
+	- No need of pwd, __just an authenticaltion token - valid for 15 mins.__
+	- Benefits :
+		- Network in/out must be encrypted
+		- IAM to centrally manage users instead of DB.
+
+### RDS Security - Summary 
+<TBD>
+
+
+## Amazon Aurora
+:warning: Asked in Exam frequently
+- Aurora is a proprietary technology from AWS. (not open sourced)
+- Postgres and MySQL are both supported as Aurora DB (driver compatibility)
+- Why Aurora?
+	- It's 'cloud-optimised' and claims 5x performance over MySQL on RDS and 3x performance over PostgresSQL
+	- Aurora storage automatically grows in increments of 10GB, upto 128 GB.
+	- Can have 15 replicas, replication is faster.
+	- Failover is instantaneous. It's highly available. (__Failover__ *is a backup operational mode that automatically switches to a standby database, server or network if the primary system fails, or is shut down for servicing*.)
+	- Aurora costs more than RDS (20% more) - but is more efficient.
+
+### Aurora High Availability and Read Scaling
+- 6 copies of your data across 3 AZs
+	- 4/6 needed for writes
+	- 3/6 needed for reads
+	- Self-healing with peer-to-peer replication
+	- Storage is striped across 100s of volumes
+- One Aurora instance takes writes i.e. __Master__
+- Automated failover < 30 sec
+- Master + upto 15 read replicas 
+- Support for cross region replication
+
+### Aurora DB cluster
+- Writer Endpoint - The client talks to the writer end point. the Writer end point talks to the Master DB.
+- Reader Endpoints - The client talks to the reader endpoint. The reader endpoint connects with one of the many read replicas of Aurora DB. Also does load balancing at a connection-level.
+- Important stuff.
+
+![screenshot-2022-06-26-at-21-25](https://user-images.githubusercontent.com/12581835/175830650-fd8659c5-7127-4f23-87c4-df997836d0b1.png)
+
+#### Aurora Features
+ - Automatic fail-over
+ - Backup and Recovery
+ - Isolation and security
+ - Industry compliance
+ - Push-button scaling
+ - Automated Patching with Zero
+ - Downtime Advanced Monitoring
+ - Routine Maintenance
+ - Backtrack: restore data at any point of time without using backups
+
+#### Aurora Security
+Similar to the RDS.
+ - Encryption at rest using KMS.
+ - Automated backups, replication.
+ - Encryption in flight using SSL ...
+
+#### Aurora Advanced Concepts
+1. AutoScaling
+	- How the autoscaling happens for upto 15 read replicas in Aurora?
+	- As the ASG detects increased demand on the Aurora read replica instances, it increases the instances.
+	- Similarly, the Reader Endpoint gets _extended_ to cover these new replicas.
+2. Custom Endpoints
+	- We can have different custom endpoints on different type of read replicas. 
+	- For Eg : You can have bigger and more powerful instances to run some read replicas. These highly performant read replicas handle all the analytical queries.
+	- Reader Endpoints not generally used once the Custom ones are defined.
+	- Custom Endpoints for different workloads on subset of Aurora read replicas.
+
+#### Aurora Serverless
+1. Automated database instantiation with Auto-Scaling
+2. Good for infrequent, intermittent or unpredictable workloads
+3. No capacity planning needed
+4. Pay per second, can be more cost-effective
+Client talks to a "Proxy Fleet" managed by AWS. In the backed, many aurora instances will be created in a serverless fashion based on workload and not capacity planning is needed.
+
+#### Aurora Multi-Master
+:warning: Exam Question
+- IN case you want immediate failover for write node (HA)
+- Every node does R/W - vs promoting a RR as the new master.
+![Let's see](https://user-images.githubusercontent.com/12581835/175878664-c8a63ef3-a6c6-4b10-a3d2-33f1d1572621.png)
+
+
+#### Global Aurora
+1. Aurora Cross region read replicas
+	- Useful for disaster recovery
+	- Easy to setup
+2. Aurora Global Database
+	- 1 Primary region
+	- Upto 5 secondary read-only regions
+	- Up to 16 read replicas per secondary region
+	- Helps for decreasing latency
+	- Promoting another region has an RTO < 1 minute
+
+#### Aurora Machine Learning
+- Supports ML services - SageMaker and Comprehend
+- Simple, optimised and secure integrtion between Aurora and ML to your applications via SQL
+
+
+## Amazon ElastiCache
+
+ElastiCache helps to manage caching technologies(Redis and Memcahed), the same way RDS helps in managing Relational Databases.
+- Caches are __in-memory databases__ with really high performance and low latency.
+- Helps to reduce load off of databases for read intensive workloads.
+	- If a client keeps logging into travel app to look for train tickets, keep them in the cache and don't perform a read operation on DB everytime.
+- Helps make your application stateless.
+- AWS takes care of OS maintenance, patching, optimization, etc.
+- Using ElastiCache involves heavy application code changes. Not a simple plug-n-play.
+
+#### Use Case 1 : DB Cache
+Commonly queried data from DB is stored in the cache for quicker retrieval and reduce load on the DB.
+Data is queried from DB, when the data isn't present in ElastiCache also known as a "Cache miss". 
+
+#### Use Case 2 : User Session Store
+- User logs into any instances of the application. 
+- App writes the session data in ElastiCache
+- User hits another instance running the App
+- Instance retrieves the session data from Cache and is already logged in. 
+- This leads to a "Stateless" application. 
+
+#### Difference between Redis and Memcached
+| Redis                                                   	| Memchached                                     	|
+|---------------------------------------------------------	|------------------------------------------------	|
+| Multi-AZ Failover                                       	| Multi-node for partitioning of data (sharding) 	|
+| Read Replicas to scale reads and have high availability 	| No high availability (replication)             	|
+| Data Durability using AOF                               	| Non persistent                                 	|
+| Backup and restore features                             	| No backup and restore                          	|
+|                                                         	| Multi-threaded architecture                    	|
+
+
+#### Cache Security
+- All caches in ElastiCache
+	- Do not support IAM authentication
+	- IAM policies are only used for AWS API-level security like creating and deleting a cache.
+- Redis AUTH
+	- Can set a "password/token" when creating a Redis cluster
+	- Extra security on top of SecGroup
+- Memcached 
+	- Supports SASL-based authentication
+
+#### ElastiCache Patterns
+1. __Lazy Loading__ - All read data is cached. Becomes stale.
+2. __Write Through__ - Adds or update data in the cache when written to a DB. 
+3. __Session Store__ - Store temporary session data in a cache.
+
+![Lazy Loading ElastiCache](https://user-images.githubusercontent.com/12581835/175893395-f6cd1c52-ec16-4b8f-b9d3-e29f54033c8a.png)
+
+ElastiCache Redis UseCase
+- Gaming leaderboards are complex
+- Redis Sorted sets guarantee both uniqueness and element ordering
+- Each time a new element added, it's ranked in real time, then added in correct order.
