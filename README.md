@@ -252,11 +252,19 @@ Use to control _where_ and _how_ my EC2 instances get deployed(or _placed_).
 - Backup and Replication of data on Instance Store is _our responsibility_. 
 
 
+
+
+
 #### Advanced Topics
 1. __EC2 Nitro__ - Underlying platform for the next-gen EC2 instances. New virtualisation tech. Better performance (64k IOPS on EBS) and security.
 2. __vCPU__ - EC2 instances come with a combination of RAM and vCPU. 1 thread on a CPU = 1 vCPU. _If a CPU has 2 cores with 2 threads per core, then it means 4 vCPU._
 If you are being charged by a licensing s/w on the basis of #of vCPUs, then you can reduce the number of threads or cores  that run on a EC2 instance. This configuration happens only at the instance launch.
 3. __Capacity Reservations__ - Ensure you have capacity when you need it. Reservations have a manual or planned ending date. No need oof 1 or 3 year commitment. You are billed as soon as the capacity is reserved. AZ, Instance Type, OS must be specified.
+4. __EC2 Instance Metadata__ - Very powerful feature.
+	- Allows EC2 instances to "learn about themselves" without using an IAM Role for that purpose.
+	- URL - http://169.254.169.254/latest/meta-data
+	- You can retrieve the IAM Role, but not IAM Policy
+	- ...and a lot of stuff about your ec2 instances. 
 
 
 
@@ -883,3 +891,324 @@ ElastiCache Redis UseCase
 - Gaming leaderboards are complex
 - Redis Sorted sets guarantee both uniqueness and element ordering
 - Each time a new element added, it's ranked in real time, then added in correct order.
+
+
+---
+
+# Route 53 :spider_web:
+
+What is DNS? 
+- Translates an IP into a human readable format.
+- Eg : www.google.com => 172.217.18.36
+- DNS uses hierarchical naming structure like below : 
+	> .com
+	> example.com
+	> www.example.com
+	> api.example.com
+
+Important Terms:
+- Domain Registrar - Amazon Route 53, GoDaddy
+- DNS Records - A, AAAA, CNAME
+- Zone File - contains DNS Records
+- Name Server - resolves DNS queries. Back and forth.
+- Top-Level Domain - .com, .us, .in
+- Second-Level Domain - amazon.com, google.com, etc. 
+ <img width="658" alt="Screenshot 2022-06-28 at 22 40 25" src="https://user-images.githubusercontent.com/12581835/176282836-32445077-ab6a-4611-893e-fd90ad8b2b3a.png">
+
+> DNS Name resolution starts from the "root". 
+
+
+## Route 53
+- Highly available, scalable, fully-managed service.
+- Authoritative DNS , that means, the customer (you) can updated the DNS Records.
+- Route 53 is also a Domain Registrar i.e. register your domain.
+- Ability to check the health of your resources within Route 53.
+- Only AWS Service to provide 100% availability SLA.
+
+
+#### Route 53 - Records
+- Define how you want to route traffic for a domain.
+- Each records contains:
+	- Domain/Subdomain name - Ex: example.com, 
+	- Record Type - Ex: A or AAAA
+	- Value - Eg: 12.34.56.78
+	- Routing Policy - how Route 53 responds to queries
+	- TTL - amount of time the record cached at DNS Resolvers. _Time to Live_
+- Route 53 supports following records types :
+	- A/AAAA/CNAME/NS (Exam)
+	- CAA/DS/MX/NAPTR/PTR etc...
+
+#### Route 53 - Record Types
+- **A** - maps a hostname to IPv4
+- **AAAA** - maps a hostname to IPv6
+- **CNAME** - maps a hostname to anoother hostname
+	- Target domain name must have an A or AAAA record
+	- Can't create a CNAME records for the top node of a DNS namespace(Zone Apex)
+- **NS** - Name servers for the hosted zones.
+
+#### Route 53 - Hosted Zones
+- Container of records that define how the traffic is routed to a domain and it's subdomains.
+- Public Hosted Zones - specify how to route traffic on the internet.
+- Private Hosted Zones - contain records that specify how you route traffic within one or more VPCs.
+- Fees = $0.50 per month per hosted zone
+
+
+#### Route 53 - Records TTL
+For TTL = 300ms, the client can cache the result from the DNS Server and not send any new requests for that duration. 
+As TTL increases, less traffic on Route 53 and everyone has outdated records, possibly.
+
+
+#### CNAME vs ALIAS
+- AWS Resources (Loadbalancer, CloudFront) expose an AWS hostname.
+	- Maybe, you want to map the hostname lb1.us-east-e.alb.amazonaws.com to myapp.domain.com
+1. __CNAME (Canonical Name)__
+	- Points to a hostname to any other hostname. (app.mydomain.com => blabla.anything.com)
+	- ONLY FOR NON ROOT DOMAIN (aka.something.mydomain.com)
+ 2. __Alias__
+	 - Points a hostname to an AWS Resource (app.mydomain.com => blabla.amazonaws.com)
+	 - WORKS FOR BOTH  ROOT DOMAIN AND  NON-ROOT DOMAIN (aka.something.mydomain.com)
+	 - Native health check
+	 - It's free.
+
+#### Route 53 - Alias Records
+- MAps a hostname to an aWS resource
+- An extension to DNS functionality
+- Automatically recognises changes in the resource's IP Addresses.
+- Unlike CNAME, it can be used for the top node of a DNS Namespace. Ex; example.com
+- Alias record is always of type A/AAAA for AWS resources.
+- You can't set TTL.
+- Targets : ELB, CloudFront, API GAteWay, BeanStalk, VPC Interface Endpoints, S3 Websites, Global Accelerator, Route 53 Records.
+- Cannot set ALIAS records for an EC2 DNS name.
+
+#### Route 53 - Routing Policies
+- Define how Route 53 responds to DNS queries. Not really "routing" any traffic.
+- Policies :
+	- **Simple** - Route traffic to a singe resource. Can specify multiple values in the same record. One values chosed randomly by the client.
+		- Eg : Client asks for foo.example.com. Route53 responds with [11.22.33.44.55 , 12.34.56.78, 110.20.30.40 ]. 
+	- **Weighted** - Controls the % of requests that go to each specific resource. DNS Records must have the same name and type. 
+		- Use cases : Load Balancing between different regions. A/B testing features.
+		- One record is zero means 
+	- **Latency based** - Redirect the resource that has the least latency to user.
+		- Can use health checks.
+		- useful when latency is a priority
+		- Latency is based on traffic between users and AWS Regions. 
+	- **Geolocation** - Routing based on user location. Should have a "Default" records in case there is no match on location.
+		- Use cases : Website localization, restrict content distribution, load balancing.
+		- Can use health checks.
+		
+	- Multi-Value answer - 
+		- Not to be consufsed with ELB.
+	- Geoproximity - 
+
+#### Route 53 - Health Checks
+- HTTP health checks are only for public resources
+- Types:
+	1. __Health checks that monitor an endpoint.__
+		- 15 global health checkers will check the endpoint health. A 2xx and 3xx code response means "OK" 
+		- Healthy/UnHealthy threshold - 3 default
+		- Interval - 30 sec
+		- Supported protocol : HTTP, HTTPS, TCP
+		- If > 18% health checkas report healthy, then Route53 considers it healthy.
+		- Health checks can be setup to pass/fail based on the text in the first 5120 bytes of the response. 
+		
+	2. __ Calculated health checks__
+		- Health Checks that monitor other health checks. 
+		- Combine the results of multiple health checks into a single health check.
+		- You can use OR, AND, or NOT.
+		- Can monitor upto 256 child health checks. Can specify the threshold to pass parent health check.
+	3. __Private Hosted Zones Health Checks__
+		- Route 53 are outside the VPC.
+		- They can't access private endpoints (private VPC or on-premise resources)
+		- You can create a CloudWatch Metric and attach an Alarm to it, then create a health check that checks the Alarm itself.
+
+
+#### Domain Registrar vs DNS Service
+- You buy or register your domain name with ANY Domain Registrar typically by paying annual charges (e.g. GoDaddy, Amazon Registrar, etc.) 
+- Domain Registrar usually provides you with a DNS service too manage your DNS Records.
+- But you can use another DNS Service to amange your DNS records.
+- **Example** : purchase the domain from GoDaddy and use Route53 to manage your DNS Records.
+- To use a 3rd party domain on Route 53, 
+	1. Create a hosted Zone in Route 53
+	2. Update NS records on 3rd party website to use Route 53 Name Servers
+
+
+
+
+# Solutions Architectures - Best Practices
+### 1. Instantiating Applications quickly
+- EC2 instances
+	- **Use a Golden EMI** : Install your applications, OS dependencies etc. beforehand and launch your EC2 instance from the Golden AMI
+	- **Bootstrap using User Data**: For dynamic configuration, use USer Data scripts
+	- __Hybrid__: mix Golden AMI and user data (Elastic Beanstalk)
+- RDS Databases:
+	- Restore from a snapshot : the databases will have schemas and data ready!
+- EBS Volumes: 
+	- Restore from a snapshot: the disk will already be formatted and have data! 
+
+
+## Elastic BeanStalk :seedling:
+
+##### Why? To solve common developers problems on AWS.
+__Problems__
+- Managing infra
+- Deploying code
+- Configuring all the DBs, ELBs, etc.
+- Scaling concerns.
+
+__Commonality__
+- Most web apps have the same architecture (ALB+ASG)
+- All the developers want is for their code to run.... 
+- ...Possibly, consistently across different applications and environments.
+
+### Elastic Beanstalk Overview
+- Elastic Beanstalk is a developer centric view of deploying an app like D-R-Y, K-I-S-S, etc...
+- It uses all the components we've seen before : EC2, ASG, ELB, RDS, etc...
+- Managed Service:
+	- Automatically handles capacity provisioning, load balancing, application health monitoring, instance configuration, ...
+	- Just the __application code is the responsibility of the developer__
+- We still have full control over the configuration 
+- Beanstalk is free, but user pays for the  underlying instances
+
+### Elastic Beanstalk Components
+- __Application__: Collection of elastic beanstalk components (environments, versions, configs, etc..)
+- __App Version__: An iteration of your application code. 
+- __Environment__: 
+	- Collection of AWS resources running an application version (only one app verion at a time)
+	- Tiers : Web Server Environment Tier (clients accessing app, we use ELBs) and Worker Environment Tier (clients not accessing app, we use SQS queue)
+	- You can create multiple environments (dev, test, prod, etc..)
+
+![](https://user-images.githubusercontent.com/12581835/177007893-1d8cc3b5-c4ea-4f49-a5b5-19f3bb6b2404.png)
+
+---
+
+# Amazon S3 :bucket:
+
+#### Overview
+- "Storage" solution. Stores __objects__(files) in 'buckets' (directories)
+- Buckets must have a _globally unique name_
+- Region-level service.
+- Naming convention:
+	- No uppercase and underscore. 
+	- 3-63 characters long. 
+	- Not an IP.
+	- Must start with lowercase or number.
+- Instantly Consistent!!! 
+
+#### Objects
+- Objects (files) have a _key_
+- __Key__ is the FULL path i.e. `s3://my-bucket/myfile.txt` or `s3://my-bucket/my_folder_1/myfile.txt` 
+	- Key = Prefix (`s3://my-bucket/my_folder_1/`) + Object name (`myfile.txt`)
+- No concept of 'directories' within buckets
+- Max size of Object = 5TB. But cannot upload anything to bucket more than 5GB at a time - must use 'multi-part' upload. _Batches_
+- __Metadata__ - List of  Key-Value pairs 
+- __Tags__ (unicode key-value pair) - useful for security/lifecycle
+- __Version ID__ 
+
+#### S3 Versioning
+- You can version your files in Amazon s3.
+- Versioning enabled at bucket level.
+- Same key(i.e. prefix+filename) overwrite will increment the "version":1,2,3..
+- Best practise to use versioning :
+	- Protect against unintended deletes.
+	- Easy to rollback
+- Files prior to versioning being enabled will have version "null"
+- Suspending versioning doesn't delete the previous versions.
+- Deleting while versioning creates "Delete Marker". 
+
+#### S3 Encryption 
+:warning: Exam asks questions on the apt type of encryption based on the situation.
+
+S3 has "Default Encryption" Option.
+
+There are 4 methods of encrypting objects in S3
+1. __SSE-S3__ 
+	- Using keys handled and managed _by Amazon S3_
+	- Server-side encryption
+	- AES-256
+	- Header value : `"x-amz-server-side-encryption":"AES-256"`
+	 
+2. __SSE-KMS__
+	- Leverage keys handled and managed _by Amazon Key Management Service_
+	- Server-side encryption
+	- KMS Advantages : Gives user control and auditing capability over usage i.e. _"Who has access to what keys?"_
+	- Header value : `"x-amz-server-side-encryption":"aws-kms"`
+
+3. __SSE-C__
+	- Server side encryption fully managed by customer outside of AWS
+	- Amazon S3 does not store the encryption keys
+	- HTTPS must be used.
+	- Encryption key must be provided in HTTP headers, for every HTTP request made
+
+4. __Client-Side Encryption__
+	- Encryption happens before sending to S3
+	- Decryption happens when retrieving from S3
+	- Use encryption library like Amazon S3 Encryption Client
+
+Encryption in transit
+- Amazon S3 exposes:
+	- HTTP endpoint: non encrypted
+	- HTTPS endpoint : encryption in flight
+- You're free to use the endpoint you want, but HTTPS is recommended
+- HTTPS mandatory for SSE-C
+- Encryption-in-flight also called SSL/TLS
+
+#### S3 Security and Bucket Policies
+- User based
+	- IAM Policies - _Which API calls should be allowed for a specific user from IAM console?_
+- Resource based
+	- Bucket Polices - bucket-wide rules from the S3 console
+	- Object Access Control Lists - finer
+	- Bucket Access Control Lists - granular access
+- IAM principal (role, user,etc.) can access an S# object if either IAM permission OR resource policy allows it AND there is not explicit deny
+
+__S3 Bucket Policy__
+- JSON Document dictating the following : 
+	- Resources : obj, buckets
+	- Actions : set of APIs 
+	- Effect : Alloow/Deny
+	- Principal : The account or user to apply the policy to
+- Use S3 buket policy :
+	- grant public access
+	- force objects to be encrypted at upload
+	- grant access to another account
+
+__Other __
+- Networking: Supports VPC endpoints for instances in VPC without www access)
+- Logging and Audit : S3 access can be stored in other S3 bucket. API calls can be logged in Cloud Trail
+- Pre-signed URLs : URLs that are valid only for a limited time (ex: premium video, UFC live stream, prootected cloud photo sharing)
+
+
+#### S3 Websites 
+- S3 can host static websites and have them available to www
+- Website URL will be :
+	- `<bucket-name>:s3-website-<AWS-region>.amazonaws.com`
+- If you get a 403 error, make sure to allow public reads.
+
+	
+#### CORS
+- An origin is a scheme (protocol), host (domain) and port.
+- CORS = Cross Origin Resource Sharing
+- Example of Same origin browsing : `http://example.com/app1` to  `http://example.com/app2`
+- Example of Different Origins : `http://www.example.com/` to `http://other.example.com/`
+- Requests won't be fulfilled unless the other origin (i.e. `example.com`) allows for the requests, using __CORS Headers__
+	- Ex: Access-Control-Allow-Origin
+- Pre-flight request asks the other website if CORS is allowed or not. 
+- What does mean for S3? :warning: very common exam question!
+- Cross-Origin Resource Sharing (CORS) defines a way for client web applications that are loaded in one domain to interact with resources in a different domain. To learn more about CORS, go here: https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html
+
+#### S3 Access Logs
+- Can log all access to S3 buckets for audit purposes
+- Any request made to S3 from any acct. authorized or denied will be logged into another S3 bucket
+- That data can be analyzed using data analysis tools or Amazon Athena
+- :warning: Keep your application bucket and monitoring buckets separate to prevent an infinite loop where the bucket monitors itself and logs.
+
+
+#### S3 Replication
+- 2 types : CRR = Cross Region Replication and SRR = Same Region Replication
+- Asynchronous Replication
+- Must Enable versioning
+-  CRR Use cases : compliance, lower latency access, replication across accounts
+- SRR Use cases : log aggregation, live replication b/w prod and test accounts
+- After activating, only new objects are replicated. Optionally, can replicate existing objects using __S3 Batch Replication__
+- Delete Markers can be replicated. However, Deletions with a version Id are not replicated(to avoid malicious delete)
+-  No "chaining" replication i.e. If B2 is replication of B1 and B3 is a replication of B2, then objects in B1 are not replicated in B3. Not transitive.
